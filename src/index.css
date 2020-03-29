@@ -191,3 +191,17 @@ code {
  border: lightgray solid 1px;
  border-radius: 5px;
 }
+
+.basket-summary {
+ display: inline-block;
+ margin-left: 10px;
+ padding: 5px 10px;
+ border: white solid 2px;
+}
+
+.like-container {
+ margin-top: 20px;
+}
+.like-container button {
+ margin-top: 5px;
+}

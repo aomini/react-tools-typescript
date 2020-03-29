@@ -13,7 +13,7 @@ export interface IReview {
 
 export const getProduct = async (id:number) : Promise<IProduct | null> => {
   await wait(1000);
-  const foundProducts = products.filter(product => product.id === id)
+  const foundProducts = products.filter(product => product.id == id)
   return foundProducts.length === 0 ? null : foundProducts[0];
 }
 

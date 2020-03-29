@@ -1,9 +1,10 @@
 import React from "react";
-import { Link, useLocation, RouteComponentProps } from "react-router-dom";
+import { useLocation, RouteComponentProps } from "react-router-dom";
 import { IProduct, products as productsData } from "./ProductData";
 import {connect} from "react-redux"
 import {IStoreState} from './Store'
 import {fetchProducts} from './ProductActions'
+import ProductList from "./ProductList" 
 
 interface IProps extends RouteComponentProps{
   fetchProducts : typeof fetchProducts,
@@ -25,15 +26,7 @@ const ProductPage: React.FC<IProps> = (props) => {
   return (
     <div className="page-container">
       <p>Welcome to React Shop. Buy your React tools.</p>
-      <ul className="product-list">
-        {products
-          .filter(x => x.name.toLowerCase().includes(search.toLowerCase()))
-          .map(product => (
-            <li key={product.id} className="product-list-item">
-              <Link to={`/products/${product.id}`}>{product.name}</Link>
-            </li>
-        ))}
-      </ul>
+      <ProductList products={products} search={search} loading={props.loading}/>
     </div>
   );
 };

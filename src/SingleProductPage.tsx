@@ -1,56 +1,66 @@
-import React from 'react'
-import {RouteComponentProps, useParams} from 'react-router-dom'
-import {IProduct, products, getProduct} from './ProductData'
-import Product from "./Product"
+import React from "react";
+import { connect } from "react-redux";
+import { addToBasket } from "./redux/basket/basketActions";
+import { fetchSingle } from "./ProductActions";
+import { IStoreState } from "./Store";
+import { RouteComponentProps, useParams } from "react-router-dom";
+import { IProduct, products } from "./ProductData";
+import Product from "./Product";
 
-type Props = RouteComponentProps<{id: string}>
-
-interface IState {
-    product ?: IProduct,
-    added : boolean;
-    loading : boolean
+interface IProps extends RouteComponentProps<{ id: string }> {
+  loading: boolean;
+  product?: IProduct;
+  added: boolean;
+  addToBasket: typeof addToBasket;
+  fetchSingle: typeof fetchSingle;
 }
 
-const SingleProductPage = (props : Props) => {
-    const [state , setState] = React.useState<IState>({added : false, loading : true})
+const SingleProductPage: React.FC<IProps> = props => {
+  const { id: productID } = useParams();
 
-    const {id : productID} = useParams();
-
-    React.useEffect(() => {
-        if(productID){
-            const id : number = parseInt(productID);
-                (async() => {
-                const product = await getProduct(id);
-                let newStateObject = state;
-                if(product){
-                    newStateObject = {...state, product, loading : false}
-                }else{
-                    newStateObject = {...state, loading : false}
-                }
-                setState(newStateObject)                
-            })();
-        }
-    }, [])
-
-    const handleAddClick = () => {
-        setState({...state,added : true})
+  React.useEffect(() => {
+    if (productID) {
+      props.fetchSingle(productID);
     }
+  }, []);
 
-    const {product, added, loading} = state;
-    return (
-        <div className="page-container">
-           {product || loading ? ( 
-               <Product
-                product={product}
-                inBasket={added}
-                loading={loading}
-                onAddToBasket={handleAddClick}
-               />
-           ): (
-               <p>Product not found </p>
-           )} 
-        </div>
-    )
-}
+  const handleAddClick = () => {
+    if (props.product) props.addToBasket(props.product);
+  };
 
-export default SingleProductPage
+  const { product, added, loading } = props;
+  return (
+    <div className="page-container">
+      {product || loading ? (
+        <Product
+          product={product}
+          inBasket={added}
+          loading={loading}
+          onAddToBasket={handleAddClick}
+        />
+      ) : (
+        <p>Product not found </p>
+      )}
+    </div>
+  );
+};
+
+const mapStateToProps = (store: IStoreState) => {
+  return {
+    basketProducts: store.basket.products,
+    loading: store.products.productsLoading,
+    product: store.products.currentProduct || undefined,
+    added: store.basket.products.some(p =>
+    store.products.currentProduct ? p.id ===
+    store.products.currentProduct.id : false)
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    addToBasket: (product: IProduct) => dispatch(addToBasket(product)),
+    fetchSingle: (id: number) => dispatch(fetchSingle(id))
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(SingleProductPage)

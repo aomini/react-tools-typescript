@@ -1,9 +1,16 @@
 import React from "react";
 import { NavLink, useLocation, useHistory, Prompt } from "react-router-dom";
+import { connect } from 'react-redux'
 
 import Logo from "./logo.svg";
+import { BasketSummary } from "./BasketSummary";
+import { IStoreState } from "./Store";
 
-const Header: React.FC = () => {
+interface IProps{
+  totalBasketItems : number
+}
+
+const Header: React.FC<IProps> = ({totalBasketItems}) => {
   const [search, setSearch] = React.useState("");
   const [halfFilledForm, setHalfFilledForm] = React.useState(false);
 
@@ -42,6 +49,7 @@ const Header: React.FC = () => {
           onChange={handleSearchChange}
           onKeyDown={handleSearchKeydown}
         />
+        <BasketSummary count={totalBasketItems}/>
       </div>
       <img src={Logo} className="header-logo" />
       <h1 className="header-title">React Shop</h1>
@@ -72,4 +80,10 @@ const Header: React.FC = () => {
   );
 };
 
-export default Header;
+const mapStateToProps = (store : IStoreState) => {
+  return {
+    totalBasketItems : store.basket.products.length
+  }
+}
+
+export default connect(mapStateToProps)(Header);
